@@ -56,7 +56,7 @@ contract EthRoulette {
     }));
   }
   
-    function spinWheel() public {
+    function spin() public {
     require(bets.length > 0);
     require(now > nextPlayableTimestamp);
     nextPlayableTimestamp = now;
@@ -97,6 +97,12 @@ contract EthRoulette {
         winnings[b.player] += betPrice * winMultiplicator[b.betType];
       }
     }
+    
+    bets.length = 0;
+    
+    minBalance = 0;
+    
+    emit RandNum(number);
   }
   
 }
