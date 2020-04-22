@@ -56,4 +56,47 @@ contract EthRoulette {
     }));
   }
   
+    function spinWheel() public {
+    require(bets.length > 0);
+    require(now > nextPlayableTimestamp);
+    nextPlayableTimestamp = now;
+
+    uint diff = block.difficulty;
+    bytes32 hash = blockhash(block.number-1);
+    Bet memory lastBet = bets[bets.length-1];
+    uint number = uint(keccak256(abi.encodePacked(now, diff, hash, lastBet.betType, lastBet.player, lastBet.number))) % 37;
+
+    for (uint i = 0; i < bets.length; i++) {
+      bool win = false;
+      Bet memory b = bets[i];
+      if (number == 0) {
+        win = (b.betType == 2 && b.number == 0);                   /* bet on 0 */
+      } else {
+        if (b.betType == 2) { 
+          win = (b.number == number);                              /* bet on number */
+        } else if (b.betType == 1) {
+          if (b.number == 0) win = (number % 2 == 0);              /* bet on even */
+          if (b.number == 1) win = (number % 2 == 1);              /* bet on odd */
+        } else if (b.betType == 0) {
+          if (b.number == 0) {                                     /* bet on black */
+            if (number <= 10 || (number >= 20 && number <= 28)) {
+              win = (number % 2 == 0);
+            } else {
+              win = (number % 2 == 1);
+            }
+          } else {                                                 /* bet on red */
+            if (number <= 10 || (number >= 20 && number <= 28)) {
+              win = (number % 2 == 1);
+            } else {
+              win = (number % 2 == 0);
+            }
+          }
+        }
+      }
+      if (win) {
+        winnings[b.player] += betPrice * winMultiplicator[b.betType];
+      }
+    }
+  }
+  
 }
