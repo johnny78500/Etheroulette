@@ -41,4 +41,19 @@ contract EthRoulette {
     ); 
   }
   
+  function bet(uint8 number, uint8 betType) payable public {
+    require(msg.value == betPrice);                           
+    require(betType >= 0 && betType <= 2);                   
+    require(number >= 0 && number <= betTypeRange[betType]); 
+    uint possibleWinnings = winMultiplicator[betType] * msg.value;
+    uint neededBalance = minBalance + possibleWinnings;
+    require(neededBalance < address(this).balance);
+    minBalance += possibleWinnings;
+    bets.push(Bet({
+      betType: betType,
+      player: msg.sender,
+      number: number
+    }));
+  }
+  
 }
