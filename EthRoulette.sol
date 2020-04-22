@@ -103,6 +103,20 @@ contract EthRoulette {
     minBalance = 0;
     
     emit RandNum(number);
+    }
+  
+   function withdraw() public {
+    address payable player = msg.sender;
+    uint256 amount = winnings[player];
+    require(amount > 0);
+    require(amount <= address(this).balance);
+    winnings[player] = 0;
+    player.transfer(amount);
+  }
+  
+  function destructor() public {
+    require(msg.sender == owner);
+    selfdestruct(owner);
   }
   
 }
